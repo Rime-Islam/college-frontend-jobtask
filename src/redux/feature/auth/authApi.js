@@ -14,6 +14,14 @@ const authApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.auth],
     }),
 
+    registerUser: builder.mutation({
+      query: (userData) => ({
+        url: "/auth/register",
+        method: "POST",
+        body: userData,
+      }),
+    }),
+
     // logout
     logoutUser: builder.mutation({
       query: () => ({
@@ -51,15 +59,14 @@ const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.auth],
     }),
-
   }),
 });
 
 export const {
   useLoginUserMutation,
+  useRegisterUserMutation,
   useLogoutUserMutation,
   useRequestForgotPasswordOtpMutation,
   useResetPasswordWithOtpMutation,
   useRefreshTokenMutation,
-
 } = authApi;

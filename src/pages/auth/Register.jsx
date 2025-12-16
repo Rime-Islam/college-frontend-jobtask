@@ -1,53 +1,97 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
-import { Mail, Lock, Eye, EyeOff, Loader2, User, Shield, GraduationCap } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  Shield,
+  UserPlus,
+} from "lucide-react";
 import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useLoginUserMutation } from '../../redux/feature/auth/authApi';
-import { useAppDispatch } from './../../redux/hook';
-import { setUser } from '../../redux/feature/auth/authSlice';
+import { useRegisterUserMutation } from "../../redux/feature/auth/authApi";
 
-const Login = () => {
+const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [serverError, setServerError] = useState("");
+  const [strength, setStrength] = useState(0);
+  const [strengthPerc, setStrengthPerc] = useState(0);
+  const [strengthColor, setStrengthColor] = useState("bg-red-500");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const [login] = useLoginUserMutation();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm();
+  const [createUser] = useRegisterUserMutation();
+  const navigate = useNavigate();
+
+  // Password strength calculator
+  const calculateStrength = (password) => {
+    let score = 0;
+    if (!password) return 0;
+
+    // Length
+    if (password.length > 8) score += 1;
+    if (password.length > 12) score += 1;
+
+    // Complexity
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+    return Math.min(score, 5);
+  };
+
+  const password = watch("password");
+  if (password) {
+    const newStrength = calculateStrength(password);
+    if (newStrength !== strength) {
+      setStrength(newStrength);
+      setStrengthPerc(newStrength * 20);
+      setStrengthColor(
+        newStrength <= 2
+          ? "bg-red-500"
+          : newStrength === 3
+          ? "bg-yellow-500"
+          : "bg-green-500"
+      );
+    }
+  }
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setError("");
+    setServerError("");
+    setSuccess("");
 
     try {
-      const res = await login({
+      const res = await createUser({
+        name: data.name,
         email: data.email,
         password: data.password,
       }).unwrap();
-      const token = res?.data?.accessToken;
-      const role = res?.data?.user?.role;
-      dispatch(setUser({ role, token }));
 
       if (res.success) {
-        toast.success("Login successful");
-
-        const roleRoutes = {
-          student: "/student/dashboard",
-          admin: "/admin/dashboard",
-        };
-        
-        navigate(roleRoutes[role] || "/");
+        toast.success(res.message);
+        setTimeout(() => {
+          navigate(`/auth/verify-email?email=${data.email}`);
+        }, 1000);
       }
-    } catch (err) {
-      setError(err.data?.message || "Invalid email or password");
-      toast.error("Login failed");
+    } catch (error) {
+      console.log(error);
+      setServerError(
+        error.data.message || "Something went wrong. Please try again later."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -56,36 +100,68 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Logo and Header */}
         <div className="text-center mb-5">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to access your account</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
+          <p className="text-gray-600">Join us by creating your account</p>
         </div>
 
-
+        {/* Registration Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+          {/* Card Header */}
           <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-600" />
-              Account Login
+              <Shield className="h-5 w-5 text-blue-600" />
+              Sign Up
             </h2>
           </div>
 
+          {/* Card Body */}
           <div className="p-6">
-            {error && (
+            {success && (
+              <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-100 flex items-start">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                <p className="ml-3 text-sm text-green-700">{success}</p>
+              </div>
+            )}
+
+            {serverError && (
               <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-100 flex items-start">
-                <div className="shrink-0 h-5 w-5 text-red-500 mt-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+                <p className="ml-3 text-sm text-red-700">{serverError}</p>
               </div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-    
+              {/* Name Field */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <div className="relative rounded-md shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    id="name"
+                    type="text"
+                    autoComplete="name"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    placeholder="John Doe"
+                    {...register("name", { required: "Full name is required" })}
+                  />
+                </div>
+                {errors.name && (
+                  <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                    <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -98,6 +174,7 @@ const Login = () => {
                     id="email"
                     type="email"
                     autoComplete="email"
+                    inputMode="email"
                     className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                     placeholder="your@email.com"
                     {...register("email", {
@@ -125,12 +202,9 @@ const Login = () => {
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Password
                   </label>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="text-sm font-medium text-blue-600 hover:text-blue-500 transition"
-                  >
-                    Forgot password?
-                  </Link>
+                  <span className="text-xs text-gray-500">
+                    Min 8 chars, mixed case, number, symbol
+                  </span>
                 </div>
                 <div className="relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -139,11 +213,15 @@ const Login = () => {
                   <input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                     placeholder="••••••••"
                     {...register("password", {
                       required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters",
+                      },
                     })}
                   />
                   <button
@@ -158,6 +236,23 @@ const Login = () => {
                     )}
                   </button>
                 </div>
+
+                {/* Password Strength Indicator */}
+                <div className="mt-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-500">Password strength</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      {strength <= 2 ? "Weak" : strength === 3 ? "Good" : "Strong"}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${strengthColor} transition-all duration-300`}
+                      style={{ width: `${strengthPerc}%` }}
+                    />
+                  </div>
+                </div>
+
                 {errors.password && (
                   <p className="mt-1.5 text-sm text-red-600 flex items-center">
                     <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -169,7 +264,7 @@ const Login = () => {
               </div>
 
               {/* Submit Button */}
-              <div>
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -178,51 +273,34 @@ const Login = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                      Signing in...
+                      Creating account...
                     </>
                   ) : (
-                    "Sign in"
+                    "Create account"
                   )}
                 </button>
               </div>
             </form>
-
-            {/* <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center mb-4">Access your dashboard by role:</p>
-              <div className="flex justify-center space-x-6">
-                <div className="flex flex-col items-center">
-                  <div className="bg-blue-100 p-2 rounded-lg mb-1">
-                    <User className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <span className="text-xs text-gray-600">Student</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="bg-indigo-100 p-2 rounded-lg mb-1">
-                    <Shield className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <span className="text-xs text-gray-600">Admin</span>
-                </div>
-      
-              </div>
-            </div> */}
           </div>
 
+          {/* Card Footer */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?
+              Already have an account?
               <Link
-                to="/register"
+                to="/login"
                 className="font-medium text-blue-600 hover:text-blue-500 transition"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
           </div>
         </div>
 
+        {/* Additional Links */}
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>
-            By signing in, you agree to our
+            By creating an account, you agree to our
             <a href="#" className="text-blue-600 hover:underline">
               Terms of Service
             </a>
@@ -237,4 +315,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
