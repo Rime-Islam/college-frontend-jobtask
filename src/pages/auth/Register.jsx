@@ -10,7 +10,6 @@ import {
   EyeOff,
   Loader2,
   Shield,
-  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -84,7 +83,7 @@ const Register = () => {
       if (res.success) {
         toast.success(res.message);
         setTimeout(() => {
-          navigate(`/auth/verify-email?email=${data.email}`);
+          navigate("/login");
         }, 1000);
       }
     } catch (error) {

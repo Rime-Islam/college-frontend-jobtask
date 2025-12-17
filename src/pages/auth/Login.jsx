@@ -38,12 +38,12 @@ const Login = () => {
       if (res.success) {
         toast.success("Login successful");
 
-        const roleRoutes = {
-          student: "/student/dashboard",
-          admin: "/admin/dashboard",
-        };
+        // const roleRoutes = {
+        //   student: "/student/dashboard",
+        //   admin: "/admin/dashboard",
+        // };
         
-        navigate(roleRoutes[role] || "/");
+        navigate("/");
       }
     } catch (err) {
       setError(err.data?.message || "Invalid email or password");

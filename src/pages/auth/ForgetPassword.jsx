@@ -35,11 +35,7 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo and Header */}
-        <div className="text-center mb-10">
-          <div className="mx-auto bg-linear-to-r from-blue-600 to-indigo-700 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Mail className="h-8 w-8 text-white" />
-          </div>
+        <div className="text-center mb-5">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {success ? "Check Your Email" : "Reset Password"}
           </h1>
@@ -50,9 +46,7 @@ const ForgotPassword = () => {
           </p>
         </div>
 
-        {/* Forgot Password Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-          {/* Card Header */}
           <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
               <Mail className="h-5 w-5 text-blue-600" />
@@ -60,11 +54,9 @@ const ForgotPassword = () => {
             </h2>
           </div>
 
-          {/* Card Body */}
           <div className="p-6">
             {!success ? (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Email Field */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                     Email Address
@@ -98,7 +90,6 @@ const ForgotPassword = () => {
                   )}
                 </div>
 
-                {/* Submit Button */}
                 <div className="pt-2">
                   <button
                     type="submit"
@@ -144,7 +135,6 @@ const ForgotPassword = () => {
               </div>
             )}
 
-            {/* Back to Login Link */}
             <div className="mt-6 text-center">
               <Link
                 to="/login"
@@ -157,7 +147,6 @@ const ForgotPassword = () => {
           </div>
         </div>
 
-        {/* Additional Information */}
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>
             Having trouble?

@@ -1,15 +1,14 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff, Loader2, Shield, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useResetPasswordWithOtpMutation } from '../../redux/feature/auth/authApi';
+import { useParams } from 'react-router-dom';
 
 const ResetPassword = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-  const id = searchParams.get('id');
+const { id, token } = useParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +43,7 @@ const ResetPassword = () => {
 
       if (response.success) {
         toast.success('Password reset successfully');
-        navigate('/auth/login');
+        navigate('/login');
       }
     } catch (error) {
       toast.error(error.data?.message || 'Failed to reset password');
@@ -57,10 +56,7 @@ const ResetPassword = () => {
     return (
       <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <div className="mx-auto bg-linear-to-r from-red-500 to-red-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-              <Lock className="h-8 w-8 text-white" />
-            </div>
+          <div className="text-center mb-5">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Invalid Link</h1>
             <p className="text-gray-600">This password reset link is invalid or has expired</p>
           </div>
@@ -97,18 +93,12 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo and Header */}
-        <div className="text-center mb-10">
-          <div className="mx-auto bg-linear-to-r from-blue-600 to-indigo-700 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Shield className="h-8 w-8 text-white" />
-          </div>
+        <div className="text-center mb-5">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Reset Password</h1>
           <p className="text-gray-600">Create a new password for your account</p>
         </div>
 
-        {/* Reset Password Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-          {/* Card Header */}
           <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
               <Lock className="h-5 w-5 text-blue-600" />
@@ -116,10 +106,8 @@ const ResetPassword = () => {
             </h2>
           </div>
 
-          {/* Card Body */}
           <div className="p-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* New Password Field */}
               <div>
                 <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
                   New Password
@@ -164,7 +152,6 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              {/* Confirm Password Field */}
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                   Confirm Password
@@ -207,7 +194,6 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              {/* Password Requirements */}
               <div className="bg-blue-50 rounded-lg p-4">
                 <h3 className="text-sm font-medium text-blue-800 mb-2">Password Requirements:</h3>
                 <ul className="text-xs text-blue-700 space-y-1">
@@ -230,7 +216,6 @@ const ResetPassword = () => {
                 </ul>
               </div>
 
-              {/* Submit Button */}
               <div className="pt-2">
                 <button
                   type="submit"
@@ -249,7 +234,6 @@ const ResetPassword = () => {
               </div>
             </form>
 
-            {/* Back to Login Link */}
             <div className="mt-6 text-center">
               <Link
                 to="/login"
@@ -262,7 +246,6 @@ const ResetPassword = () => {
           </div>
         </div>
 
-        {/* Additional Information */}
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>
             Having trouble?{" "}
