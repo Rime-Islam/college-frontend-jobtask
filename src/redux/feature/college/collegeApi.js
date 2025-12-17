@@ -23,10 +23,15 @@ const collegeApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.college],
     }),
+
+    getCollegeById: builder.query({
+      query: (id) => ({
+        url: `/college/${id}`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.college],
+    }),
   }),
 });
 
-export const {
-    useCreateCollegeMutation,
-    useGetAllCollegesQuery,
-} = collegeApi;
+export const { useCreateCollegeMutation, useGetCollegeByIdQuery, useGetAllCollegesQuery } = collegeApi;

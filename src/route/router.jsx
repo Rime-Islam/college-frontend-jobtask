@@ -11,6 +11,10 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import IsAdmin from "./IsAdmin.jsx";
 import CreateCollege from "../pages/college/CreateCollege.jsx";
 import College from "../pages/college/College.jsx";
+import CollegeDetails from "../pages/college/CollegeDetails.jsx";
+import Admission from "../pages/admission/Admission.jsx";
+import MyAdmission from "../pages/admission/MyAdmission.jsx";
+import Profile from "../pages/auth/Profile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +49,22 @@ const router = createBrowserRouter([
       {
         path: "/colleges",
         element: <College />,
+      },
+      {
+        path: "/admission",
+        element: <ProtectedRoute><Admission /></ProtectedRoute>,
+      },
+      {
+        path: "/my-college",
+        element: <ProtectedRoute><MyAdmission /></ProtectedRoute>,
+      },
+      {
+        path: "/profile",
+        element: <ProtectedRoute><Profile /></ProtectedRoute>,
+      },
+      {
+        path: "/colleges/:id",
+        element: <CollegeDetails />,
       },
       // {
       //   path: "/admin/profile",

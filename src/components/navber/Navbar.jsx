@@ -35,7 +35,7 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex space-x-6">
-              {['/', '/colleges', '/admission', '/about', '/contact'].map((path, index) => (
+              {['/', '/colleges', '/admission', '/my-college'].map((path, index) => (
                 <li key={index}>
                   <NavLink
                     to={path}
@@ -116,7 +116,7 @@ const Navbar = () => {
         <div className={`md:hidden ${isOpen ? 'block' : 'hidden'} pb-4`}>
           <div className="flex flex-col space-y-2 pt-2">
             <ul className="flex flex-col space-y-2">
-              {['/', '/colleges', '/admission','/about'].map((path, index) => (
+              {['/', '/colleges', '/admission','/my-college'].map((path, index) => (
                 <li key={index}>
                   <NavLink
                     to={path}

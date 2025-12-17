@@ -1,78 +1,19 @@
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import CollegeCard from "../college/CollegeCard";
-
-const colleges = [
-  {
-    id: 1,
-    name: "Stanford University",
-    location: "Stanford, CA",
-    type: "Private",
-    ranking: "#3 National",
-    image: "/stanford-university-campus.png",
-    description: "A leading research university known for innovation and entrepreneurship.",
-    acceptanceRate: "4%",
-  },
-  {
-    id: 2,
-    name: "MIT",
-    location: "Cambridge, MA",
-    type: "Private",
-    ranking: "#2 National",
-    image: "/mit-campus-building.jpg",
-    description: "World-renowned for engineering, technology, and scientific research.",
-    acceptanceRate: "4%",
-  },
-  {
-    id: 3,
-    name: "Harvard University",
-    location: "Cambridge, MA",
-    type: "Private",
-    ranking: "#1 National",
-    image: "/harvard-university-campus.png",
-    description: "America's oldest university with unparalleled academic excellence.",
-    acceptanceRate: "3%",
-  },
-  {
-    id: 4,
-    name: "UC Berkeley",
-    location: "Berkeley, CA",
-    type: "Public",
-    ranking: "#1 Public",
-    image: "/uc-berkeley-campus.jpg",
-    description: "Leading public research university with cutting-edge programs.",
-    acceptanceRate: "14%",
-  },
-  {
-    id: 5,
-    name: "Yale University",
-    location: "New Haven, CT",
-    type: "Private",
-    ranking: "#5 National",
-    image: "/yale-university-campus.jpg",
-    description: "Prestigious Ivy League institution with strong liberal arts tradition.",
-    acceptanceRate: "5%",
-  },
-  {
-    id: 6,
-    name: "Princeton University",
-    location: "Princeton, NJ",
-    type: "Private",
-    ranking: "#1 National",
-    image: "/princeton-university-campus.jpg",
-    description: "Elite university focused on undergraduate education and research.",
-    acceptanceRate: "4%",
-  },
-];
+import { useGetAllCollegesQuery } from "../../redux/feature/college/collegeApi";
 
 const HeroBanner = () => {
+  const { data } = useGetAllCollegesQuery({});
+
+  const colleges = data?.data;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredColleges, setFilteredColleges] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      const results = colleges.filter((college) => 
+      const results = colleges.filter((college) =>
         college.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredColleges(results);
@@ -95,7 +36,8 @@ const HeroBanner = () => {
               Discover Your Future
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-gray-300 sm:text-xl">
-              Search and explore top colleges. Book campus tours, connect with admissions, and find your perfect match.
+              Search and explore top colleges. Book campus tours, connect with
+              admissions, and find your perfect match.
             </p>
 
             <div className="mx-auto mt-10 max-w-2xl">
@@ -133,14 +75,15 @@ const HeroBanner = () => {
                 </h2>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredColleges.map((college) => (
-                    <CollegeCard key={college.id} college={college} />
+                    <CollegeCard key={college?._id} college={college} />
                   ))}
                 </div>
               </>
             ) : (
               <div className="text-center py-12">
                 <p className="text-lg text-gray-600">
-                  No colleges found matching "{searchQuery}". Try a different search term.
+                  No colleges found matching "{searchQuery}". Try a different
+                  search term.
                 </p>
               </div>
             )}

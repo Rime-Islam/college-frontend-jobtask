@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useCreateCollegeMutation } from '../../redux/feature/college/collegeApi';
-import { Plus, Trash2, Image as ImageIcon, X, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Image, X, AlertCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const CreateCollege = () => {
+  const navigate = useNavigate();
   const { register, control, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
@@ -37,13 +40,6 @@ const CreateCollege = () => {
     name: 'sports'
   });
 
-  // Image states
-  const [collegeImage, setCollegeImage] = useState(null);
-  const [collegeImagePreview, setCollegeImagePreview] = useState('');
-  const [imageErrors, setImageErrors] = useState({});
-  
-  // Event images - Store as array to maintain order
-  const [eventImages, setEventImages] = useState([]);
 
   const [createCollege, { isLoading }] = useCreateCollegeMutation();
 
@@ -51,65 +47,10 @@ const CreateCollege = () => {
   const researchHistory = watch('researchHistory');
   const numberOfResearch = researchHistory?.length || 0;
 
-  const handleCollegeImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setImageErrors(prev => ({ ...prev, collegeImage: 'Invalid image type' }));
-      return;
-    }
-
-    setCollegeImage(file);
-    setImageErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors.collegeImage;
-      return newErrors;
-    });
-
-    const reader = new FileReader();
-    reader.onloadend = () => setCollegeImagePreview(reader.result);
-    reader.readAsDataURL(file);
-  };
-
-  const removeCollegeImage = () => {
-    setCollegeImage(null);
-    setCollegeImagePreview('');
-  };
-
-  const handleEventImageChange = (index, e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      alert('Invalid image type');
-      return;
-    }
-
-    setEventImages(prev => {
-      const newImages = [...prev];
-      newImages[index] = file;
-      return newImages;
-    });
-  };
-
-  const removeEventImage = (index) => {
-    setEventImages(prev => {
-      const newImages = [...prev];
-      newImages[index] = null;
-      return newImages;
-    });
-  };
 
   const onSubmit = async (data) => {
-    if (!collegeImage) {
-      setImageErrors(prev => ({ ...prev, collegeImage: 'College image is required' }));
-      return;
-    }
-
     try {
-      const formData = new FormData();
-
       // Prepare the college data object
       const collegeData = {
         name: data.name,
@@ -123,13 +64,12 @@ const CreateCollege = () => {
         location: data.location,
         description: data.description,
         contact: data.contact,
-        events: data.events.map((event, index) => ({
+        events: data.events.map(event => ({
           name: event.name,
           description: event.description,
           date: event.date,
           venue: event.venue,
-          category: event.category,
-          hasImage: !!eventImages[index]
+          category: event.category
         })),
         researchHistory: data.researchHistory.map(research => ({
           title: research.title,
@@ -148,34 +88,14 @@ const CreateCollege = () => {
           coachName: sport.coachName || undefined
         }))
       };
-console.log(collegeData)
-      // Append JSON data
-      formData.append('data', JSON.stringify(collegeData));
 
-      // Append college image
-      formData.append('image', collegeImage);
-
-      // ✅ FIX: Append event images with the same field name 'eventImages'
-      // Backend expects all event images under the same field name
-      eventImages.forEach((file, index) => {
-        if (file) {
-          formData.append('eventImages', file);
-        }
-      });
-
-      console.log('FormData being sent:');
-      console.log('- College Image:', collegeImage?.name);
-      console.log('- Event Images count:', eventImages.filter(f => f).length);
-      console.log('- Data:', collegeData);
-
-      const res = await createCollege(formData).unwrap();
-      alert(res.message || 'College created successfully!');
-      
-      // Reset form after success
+      const res = await createCollege(collegeData).unwrap();
+      toast(res.message || 'College created successfully!');
+      navigate('/colleges')
       window.location.reload();
     } catch (error) {
       console.error('Error creating college:', error);
-      alert(error?.data?.message || 'Failed to create college');
+      toast(error?.data?.message || 'Failed to create college');
     }
   };
 
@@ -185,47 +105,7 @@ console.log(collegeData)
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Create New College</h1>
         
         <div className="space-y-8">
-          {/* College Image */}
-          <section className="border-b pb-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">College Image *</h2>
-            
-            {collegeImagePreview ? (
-              <div className="relative w-64">
-                <img 
-                  src={collegeImagePreview} 
-                  alt="College preview" 
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={removeCollegeImage}
-                  className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ) : (
-              <label className="block cursor-pointer">
-                <div className="border-2 border-dashed border-gray-300 p-8 rounded-lg text-center hover:border-blue-500 transition">
-                  <ImageIcon className="mx-auto mb-2 text-gray-400" size={48} />
-                  <p className="text-gray-600">Click to upload college image</p>
-                </div>
-                <input 
-                  type="file" 
-                  hidden 
-                  accept="image/*"
-                  onChange={handleCollegeImageChange} 
-                />
-              </label>
-            )}
 
-            {imageErrors.collegeImage && (
-              <p className="text-red-500 text-sm flex items-center gap-1 mt-2">
-                <AlertCircle size={14} />
-                {imageErrors.collegeImage}
-              </p>
-            )}
-          </section>
 
           {/* Basic Information */}
           <section className="border-b pb-6">
@@ -394,46 +274,11 @@ console.log(collegeData)
                   <h3 className="font-medium text-gray-700">Event {index + 1}</h3>
                   <button
                     type="button"
-                    onClick={() => {
-                      removeEvent(index);
-                      removeEventImage(index);
-                    }}
+                    onClick={() => removeEvent(index)}
                     className="text-red-600 hover:text-red-800"
                   >
                     <Trash2 size={18} />
                   </button>
-                </div>
-
-                {/* Event Image Upload */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Event Image (Optional)</label>
-                  {eventImages[index] ? (
-                    <div className="relative w-32">
-                      <img 
-                        src={URL.createObjectURL(eventImages[index])} 
-                        alt={`Event ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeEventImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="w-32 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500">
-                      <ImageIcon size={24} className="text-gray-400" />
-                      <span className="text-xs text-gray-500 mt-1">Upload</span>
-                      <input 
-                        type="file" 
-                        hidden 
-                        accept="image/*"
-                        onChange={(e) => handleEventImageChange(index, e)} 
-                      />
-                    </label>
-                  )}
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
