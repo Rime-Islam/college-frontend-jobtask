@@ -42,8 +42,8 @@ const CreateCollege = () => {
   const [collegeImagePreview, setCollegeImagePreview] = useState('');
   const [imageErrors, setImageErrors] = useState({});
   
-  // Event images
-  const [eventImages, setEventImages] = useState({});
+  // Event images - Store as array to maintain order
+  const [eventImages, setEventImages] = useState([]);
 
   const [createCollege, { isLoading }] = useCreateCollegeMutation();
 
@@ -86,13 +86,17 @@ const CreateCollege = () => {
       return;
     }
 
-    setEventImages(prev => ({ ...prev, [index]: file }));
+    setEventImages(prev => {
+      const newImages = [...prev];
+      newImages[index] = file;
+      return newImages;
+    });
   };
 
   const removeEventImage = (index) => {
     setEventImages(prev => {
-      const newImages = { ...prev };
-      delete newImages[index];
+      const newImages = [...prev];
+      newImages[index] = null;
       return newImages;
     });
   };
@@ -144,22 +148,34 @@ const CreateCollege = () => {
           coachName: sport.coachName || undefined
         }))
       };
-
+console.log(collegeData)
       // Append JSON data
       formData.append('data', JSON.stringify(collegeData));
 
       // Append college image
       formData.append('image', collegeImage);
 
-      // Append event images
-      Object.entries(eventImages).forEach(([index, file]) => {
-        formData.append(`eventImage_${index}`, file);
+      // ✅ FIX: Append event images with the same field name 'eventImages'
+      // Backend expects all event images under the same field name
+      eventImages.forEach((file, index) => {
+        if (file) {
+          formData.append('eventImages', file);
+        }
       });
+
+      console.log('FormData being sent:');
+      console.log('- College Image:', collegeImage?.name);
+      console.log('- Event Images count:', eventImages.filter(f => f).length);
+      console.log('- Data:', collegeData);
 
       const res = await createCollege(formData).unwrap();
       alert(res.message || 'College created successfully!');
+      
+      // Reset form after success
+      window.location.reload();
     } catch (error) {
       console.error('Error creating college:', error);
+      alert(error?.data?.message || 'Failed to create college');
     }
   };
 
