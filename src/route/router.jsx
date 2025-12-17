@@ -7,6 +7,10 @@ import Login from "../pages/auth/Login.jsx";
 import Register from "../pages/auth/Register.jsx";
 import ForgotPassword from "../pages/auth/ForgetPassword.jsx";
 import ResetPassword from "../pages/auth/ResetPassword.jsx";
+import ProtectedRoute from "./ProtectedRoute.jsx";
+import IsAdmin from "./IsAdmin.jsx";
+import CreateCollege from "../pages/college/CreateCollege.jsx";
+import College from "../pages/college/College.jsx";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +41,18 @@ const router = createBrowserRouter([
       {
         path: "/auth/reset-password/:id/:token",
         element: <ResetPassword />,
+      },
+      {
+        path: "/colleges",
+        element: <College />,
+      },
+      // {
+      //   path: "/admin/profile",
+      //   element: <ProtectedRoute> <ResetPassword /> </ProtectedRoute>,
+      // },
+      {
+        path: "/admin/create-college",
+        element: <IsAdmin> <CreateCollege /> </IsAdmin>,
       },
     ],
   },
