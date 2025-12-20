@@ -4,7 +4,11 @@ import { RxCross2 } from "react-icons/rx";
 import { Link, NavLink } from "react-router-dom";
 import { FaUser, FaUniversity, FaSignOutAlt } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import { logout, useCurrentRole, useCurrentToken } from "../../redux/feature/auth/authSlice";
+import {
+  logout,
+  useCurrentRole,
+  useCurrentToken,
+} from "../../redux/feature/auth/authSlice";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +16,7 @@ const Navbar = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(useCurrentToken);
   const role = useAppSelector(useCurrentRole);
-  
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -21,6 +25,29 @@ const Navbar = () => {
     dispatch(logout());
     setShowProfile(false);
   };
+
+  // Navigation items based on user role
+  const getNavItems = () => {
+    const items = [
+      { path: "/", label: "Home" },
+      { path: "/colleges", label: "Colleges" },
+    ];
+
+    // Only show admission and my-college links for students
+    if (role === "student") {
+      items.push(
+        { path: "/admission", label: "Admission" },
+        { path: "/my-college", label: "My College" }
+      );
+    }
+    if (role === "admin") {
+      items.push({ path: "/admin/create-college", label: "Create College" });
+    }
+
+    return items;
+  };
+
+  const navItems = getNavItems();
 
   return (
     <nav className="w-full bg-white shadow-xl">
@@ -35,15 +62,19 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex space-x-6">
-              {['/', '/colleges', '/admission', '/my-college'].map((path, index) => (
+              {navItems.map((item, index) => (
                 <li key={index}>
                   <NavLink
-                    to={path}
-                    className={({ isActive }) => 
-                      `font-medium ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'} transition-colors pb-1`
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `font-medium ${
+                        isActive
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-600 hover:text-blue-500"
+                      } transition-colors pb-1`
                     }
                   >
-                    {path === '/' ? 'Home' : path.substring(1).charAt(0).toUpperCase() + path.substring(2)}
+                    {item.label}
                   </NavLink>
                 </li>
               ))}
@@ -54,7 +85,7 @@ const Navbar = () => {
           <div className="flex items-center">
             {user ? (
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowProfile(!showProfile)}
                   className="flex items-center space-x-2 focus:outline-none"
                 >
@@ -62,32 +93,20 @@ const Navbar = () => {
                     <FaUser className="text-blue-600" />
                   </div>
                 </button>
-                
+
                 {/* Profile Dropdown */}
                 {showProfile && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                   
-                   {
-                    role === 'admin' && (
-                         <Link 
-                      to="/admin/create-college" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                      onClick={() => setShowProfile(false)}
-                    >
-                      <FaUser className="mr-2" /> Create College
-                    </Link>
-                    )
-                   }
-                    <Link 
-                      to="/profile" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    <Link
+                      to="/profile"
+                      className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                       onClick={() => setShowProfile(false)}
                     >
                       <FaUser className="mr-2" /> My Profile
                     </Link>
-                    <button 
+                    <button
                       onClick={handleLogOut}
-                      className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                      className="w-full text-left  px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                     >
                       <FaSignOutAlt className="mr-2" /> Logout
                     </button>
@@ -103,29 +122,37 @@ const Navbar = () => {
             )}
 
             {/* Mobile Menu Button */}
-            <button 
+            <button
               onClick={toggleMenu}
               className="md:hidden ml-4 p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
             >
-              {isOpen ? <RxCross2 className="w-6 h-6" /> : <AiOutlineMenu className="w-6 h-6" />}
+              {isOpen ? (
+                <RxCross2 className="w-6 h-6" />
+              ) : (
+                <AiOutlineMenu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        <div className={`md:hidden ${isOpen ? 'block' : 'hidden'} pb-4`}>
+        <div className={`md:hidden ${isOpen ? "block" : "hidden"} pb-4`}>
           <div className="flex flex-col space-y-2 pt-2">
             <ul className="flex flex-col space-y-2">
-              {['/', '/colleges', '/admission','/my-college'].map((path, index) => (
+              {navItems.map((item, index) => (
                 <li key={index}>
                   <NavLink
-                    to={path}
+                    to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className={({ isActive }) => 
-                      `block py-2 px-4 rounded-md font-medium ${isActive ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'} transition-colors`
+                    className={({ isActive }) =>
+                      `block py-2 px-4 rounded-md font-medium ${
+                        isActive
+                          ? "bg-blue-100 text-blue-600"
+                          : "text-gray-600 hover:bg-gray-100"
+                      } transition-colors`
                     }
                   >
-                    {path === '/' ? 'Home' : path.substring(1).charAt(0).toUpperCase() + path.substring(2)}
+                    {item.label}
                   </NavLink>
                 </li>
               ))}

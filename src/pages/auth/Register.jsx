@@ -17,7 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useRegisterUserMutation } from "../../redux/feature/auth/authApi";
 import GoogleButton from "../../components/auth/GoogleButton";
-import FacebookButton from "../../components/auth/FacebookButton";
+// import FacebookButton from "../../components/auth/FacebookButton";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -328,9 +328,9 @@ const Register = () => {
             <div className="mt-6 flex justify-center">
               <GoogleButton setShowSuccessModal={setShowSuccessModal} />
             </div>
-            <div className="mt-6 flex justify-center">
+            {/* <div className="mt-6 flex justify-center">
               <FacebookButton setShowSuccessModal={setShowSuccessModal} />
-            </div>
+            </div> */}
           </div>
 
           {/* Card Footer */}

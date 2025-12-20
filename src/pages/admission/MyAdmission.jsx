@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { 
   Calendar, 
@@ -14,22 +14,79 @@ import {
   Clock,
   FileText,
   Star,
-  Globe
+  Globe,
+  Send,
+  Edit2,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { useGetMyAdmissionQuery } from "../../redux/feature/admission/admissionApi";
 import { Link } from "react-router-dom";
+import { 
+  useCreateReviewMutation, 
+  useGetMyReviewsQuery,
+  useUpdateReviewMutation,
+  useDeleteReviewMutation
+} from "../../redux/feature/review/reviewApi";
+
+const StarRating = ({ rating, onRatingChange, disabled = false }) => {
+  return (
+    <div className="flex">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => !disabled && onRatingChange(star)}
+          disabled={disabled}
+          className={`p-1 focus:outline-none ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+        >
+          <Star 
+            className={`h-6 w-6 transition-colors ${
+              star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+            }`} 
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const MyAdmission = () => {
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [isEditingReview, setIsEditingReview] = useState(false);
+  
   const { 
     data: admissionsResponse, 
     isLoading: admissionLoading, 
     isError: admissionError 
   } = useGetMyAdmissionQuery();
   
-  // Extract the admissions array and get the first admission
   const admissions = admissionsResponse?.data || [];
   const admission = admissions.length > 0 ? admissions[0] : null;
   const college = admission?.collegeId;
+  
+  // Fetch existing review for this college
+  const { 
+    data: myReviewResponse, 
+    isLoading: reviewLoading,
+    refetch: refetchReview
+  } = useGetMyReviewsQuery();
+  
+  const existingReview = myReviewResponse?.data;
+  console.log(existingReview)
+  const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
+  const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
+  const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
+  
+  // Load existing review data when available
+  useEffect(() => {
+    if (existingReview) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setReviewRating(existingReview[0]?.rating);
+      setReviewComment(existingReview[0]?.comment || '');
+    }
+  }, [existingReview]);
 
   // Function to format dates properly
   const formatDate = (dateString) => {
@@ -39,6 +96,90 @@ const MyAdmission = () => {
       month: 'long', 
       day: 'numeric' 
     });
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!college) {
+      toast.error("College information not available");
+      return;
+    }
+    
+    if (reviewRating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+
+    try {
+      const reviewData = {
+        collegeId: college._id,
+        rating: reviewRating,
+        comment: reviewComment || undefined
+      };
+
+      await createReview(reviewData).unwrap();
+      
+      toast.success("Review submitted successfully");
+      setReviewRating(0);
+      setReviewComment('');
+      refetchReview();
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to submit review");
+    }
+  };
+
+  const handleReviewUpdate = async () => {
+    if (!existingReview[0]?._id) {
+      toast.error("Review not found");
+      return;
+    }
+    
+    if (reviewRating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+
+    try {
+      await updateReview({
+        id: existingReview[0]?._id,
+        data: {
+          rating: reviewRating,
+          comment: reviewComment || undefined
+        }
+      }).unwrap();
+      
+      toast.success("Review updated successfully");
+      setIsEditingReview(false);
+      refetchReview();
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to update review");
+    }
+  };
+
+  const handleReviewDelete = async () => {
+    if (!existingReview[0]?._id) {
+      toast.error("Review not found");
+      return;
+    }
+
+    try {
+      await deleteReview(existingReview[0]?._id).unwrap();
+      
+      toast.success("Review deleted successfully");
+      setReviewRating(0);
+      setReviewComment('');
+      setIsEditingReview(false);
+      refetchReview();
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete review");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (existingReview) {
+      setReviewRating(existingReview[0]?.rating);
+      setReviewComment(existingReview[0]?.comment || '');
+    }
+    setIsEditingReview(false);
   };
 
   if (admissionLoading) {
@@ -170,7 +311,7 @@ const MyAdmission = () => {
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
                 <div className="flex items-center">
                   <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
-                    <User className="h-6 w-6 text-white" />
+                    <User className="h-6 w-6 text-blue-500" />
                   </div>
                   <h2 className="text-xl font-bold text-white">Personal Information</h2>
                 </div>
@@ -228,7 +369,7 @@ const MyAdmission = () => {
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
                 <div className="flex items-center">
                   <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
-                    <BookOpen className="h-6 w-6 text-white" />
+                    <BookOpen className="h-6 w-6 text-blue-500" />
                   </div>
                   <h2 className="text-xl font-bold text-white">Academic Information</h2>
                 </div>
@@ -261,7 +402,7 @@ const MyAdmission = () => {
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
                 <div className="flex items-center">
                   <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
-                    <GraduationCap className="h-6 w-6 text-white" />
+                    <GraduationCap className="h-6 w-6 text-blue-500" />
                   </div>
                   <h2 className="text-xl font-bold text-white">College Information</h2>
                 </div>
@@ -377,7 +518,7 @@ const MyAdmission = () => {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
             <div className="flex items-center">
               <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
-                <FileText className="h-6 w-6 text-white" />
+                <FileText className="h-6 w-6 text-blue-500" />
               </div>
               <h2 className="text-xl font-bold text-white">Application Status Details</h2>
             </div>
@@ -421,6 +562,171 @@ const MyAdmission = () => {
             </div>
           </div>
         </div>
+
+        {/* Review Section - Only show if admission is approved */}
+        {college && (
+          <div className="mt-8 bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
+              <div className="flex items-center">
+                <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
+                  <Star className="h-6 w-6 text-blue-500" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Rate Your Experience</h2>
+              </div>
+            </div>
+            <div className="p-6">
+              {/* Create Review Section - Only show if no existing review */}
+              {!existingReview?.length  && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Share Your Experience</h3>
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                    <StarRating rating={reviewRating} onRatingChange={setReviewRating} />
+                  </div>
+                  <div className="mb-6">
+                    <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
+                      Comment (Optional)
+                    </label>
+                    <textarea
+                      id="comment"
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Share your experience with this college..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleReviewSubmit}
+                      disabled={isCreating || reviewRating === 0}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center"
+                    >
+                      {isCreating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Submit Review
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Existing Review Section - Only show if there is an existing review */}
+              {existingReview && (
+                <div className="border-t pt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Your Review</h3>
+                    {!isEditingReview && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setIsEditingReview(true)}
+                          className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition flex items-center gap-2"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={handleReviewDelete}
+                          disabled={isDeleting}
+                          className="px-4 py-2 bg-red-50 text-red-700 rounded-lg font-medium hover:bg-red-100 transition border border-red-200 flex items-center gap-2 disabled:opacity-50"
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {reviewLoading ? (
+                    <div className="text-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto" />
+                      <p className="mt-2 text-gray-600">Loading review...</p>
+                    </div>
+                  ) : isEditingReview ? (
+                    // Edit Review Form
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                        <StarRating rating={reviewRating} onRatingChange={setReviewRating} />
+                      </div>
+                      <div>
+                        <label htmlFor="edit-comment" className="block text-sm font-medium text-gray-700 mb-2">
+                          Comment (Optional)
+                        </label>
+                        <textarea
+                          id="edit-comment"
+                          rows={4}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Share your experience with this college..."
+                          value={reviewComment}
+                          onChange={(e) => setReviewComment(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={handleCancelEdit}
+                          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleReviewUpdate}
+                          disabled={isUpdating || reviewRating === 0}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center"
+                        >
+                          {isUpdating ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              Updating...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-2" />
+                              Update Review
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Display Review Details
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                        <StarRating rating={reviewRating} onRatingChange={() => {}} disabled={true} />
+                      </div>
+                      {reviewComment && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Your Comment</label>
+                          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <p className="text-gray-900">{reviewComment}</p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-500">
+                        Reviewed on {formatDate(existingReview.createdAt)}
+                        {existingReview.updatedAt && existingReview.updatedAt !== existingReview.createdAt && (
+                          <span> • Updated on {formatDate(existingReview.updatedAt)}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

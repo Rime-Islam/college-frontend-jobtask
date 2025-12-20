@@ -3,8 +3,10 @@ import { useGetAllCollegesQuery } from "../../redux/feature/college/collegeApi";
 import { useCreateAdmissionMutation } from "../../redux/feature/admission/admissionApi";
 import { toast } from "sonner";
 import { Loader2, Mail, Phone, MapPin, Calendar, User, BookOpen, GraduationCap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Admission = () => {
+  const navigate = useNavigate();
   const { data: collegesData, isLoading } = useGetAllCollegesQuery({});
   const [createAdmission, { isLoading: submitting }] = useCreateAdmissionMutation();
 
@@ -42,6 +44,7 @@ const Admission = () => {
         address: "",
         dateOfBirth: "",
       });
+       navigate("/my-college")
     } catch (error) {
       console.error(error);
       toast.error("Failed to submit admission.");

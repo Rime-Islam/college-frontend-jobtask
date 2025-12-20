@@ -17,7 +17,7 @@ import { useLoginUserMutation } from "../../redux/feature/auth/authApi";
 import { useAppDispatch } from "./../../redux/hook";
 import { setUser } from "../../redux/feature/auth/authSlice";
 import GoogleButton from "../../components/auth/GoogleButton";
-import FacebookButton from "../../components/auth/FacebookButton";
+// import FacebookButton from "../../components/auth/FacebookButton";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -232,9 +232,9 @@ const Login = () => {
             <div className="mt-6 flex justify-center">
               <GoogleButton setShowSuccessModal={setShowSuccessModal} />
             </div>
-            <div className="mt-6 flex justify-center">
+            {/* <div className="mt-6 flex justify-center">
               <FacebookButton setShowSuccessModal={setShowSuccessModal} />
-            </div>
+            </div> */}
           </div>
 
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 text-center">
