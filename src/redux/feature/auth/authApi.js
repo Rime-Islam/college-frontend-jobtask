@@ -59,6 +59,43 @@ const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.auth],
     }),
+
+    // google facebook login
+    googleLogin: builder.mutation({
+      query: (userData) => ({
+        url: "/auth/google",
+        method: "POST",
+        body: userData,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.auth],
+    }),
+
+    // change password
+    changePassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/change-password",
+        method: "PUT",
+        body: data,
+      }),
+    }),
+
+    getMyProfile: builder.query({
+      query: () => ({
+        url: `/auth`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.auth],
+    }),
+
+    updateProfile: builder.mutation({
+      query: (data) => ({
+        url: "/auth/profile",
+        method: "Patch",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.auth],
+    }),
   }),
 });
 
@@ -69,4 +106,8 @@ export const {
   useRequestForgotPasswordOtpMutation,
   useResetPasswordWithOtpMutation,
   useRefreshTokenMutation,
+  useGoogleLoginMutation,
+  useChangePasswordMutation,
+  useGetMyProfileQuery,
+  useUpdateProfileMutation,
 } = authApi;

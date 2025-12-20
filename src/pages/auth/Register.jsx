@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useForm } from "react-hook-form";
 import {
   CheckCircle2,
@@ -16,6 +16,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useRegisterUserMutation } from "../../redux/feature/auth/authApi";
+import GoogleButton from "../../components/auth/GoogleButton";
+import FacebookButton from "../../components/auth/FacebookButton";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +27,9 @@ const Register = () => {
   const [strengthPerc, setStrengthPerc] = useState(0);
   const [strengthColor, setStrengthColor] = useState("bg-red-500");
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  console.log(showSuccessModal);
   const {
     register,
     handleSubmit,
@@ -101,7 +105,9 @@ const Register = () => {
       <div className="w-full max-w-md">
         {/* Logo and Header */}
         <div className="text-center mb-5">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Create Account
+          </h1>
           <p className="text-gray-600">Join us by creating your account</p>
         </div>
 
@@ -134,7 +140,10 @@ const Register = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Name Field */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Full Name
                 </label>
                 <div className="relative rounded-md shadow-sm">
@@ -152,8 +161,16 @@ const Register = () => {
                 </div>
                 {errors.name && (
                   <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                    <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {errors.name.message}
                   </p>
@@ -162,7 +179,10 @@ const Register = () => {
 
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Address
                 </label>
                 <div className="relative rounded-md shadow-sm">
@@ -187,8 +207,16 @@ const Register = () => {
                 </div>
                 {errors.email && (
                   <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                    <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {errors.email.message}
                   </p>
@@ -198,7 +226,10 @@ const Register = () => {
               {/* Password Field */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
                   <span className="text-xs text-gray-500">
@@ -239,9 +270,15 @@ const Register = () => {
                 {/* Password Strength Indicator */}
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-500">Password strength</span>
+                    <span className="text-xs text-gray-500">
+                      Password strength
+                    </span>
                     <span className="text-xs font-medium text-gray-700">
-                      {strength <= 2 ? "Weak" : strength === 3 ? "Good" : "Strong"}
+                      {strength <= 2
+                        ? "Weak"
+                        : strength === 3
+                        ? "Good"
+                        : "Strong"}
                     </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
@@ -254,8 +291,16 @@ const Register = () => {
 
                 {errors.password && (
                   <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                    <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {errors.password.message}
                   </p>
@@ -280,6 +325,12 @@ const Register = () => {
                 </button>
               </div>
             </form>
+            <div className="mt-6 flex justify-center">
+              <GoogleButton setShowSuccessModal={setShowSuccessModal} />
+            </div>
+            <div className="mt-6 flex justify-center">
+              <FacebookButton setShowSuccessModal={setShowSuccessModal} />
+            </div>
           </div>
 
           {/* Card Footer */}

@@ -1,12 +1,23 @@
-import React from 'react';
+import React from "react";
 import { useForm } from "react-hook-form";
-import { Mail, Lock, Eye, EyeOff, Loader2, User, Shield, GraduationCap } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  User,
+  Shield,
+  GraduationCap,
+} from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useLoginUserMutation } from '../../redux/feature/auth/authApi';
-import { useAppDispatch } from './../../redux/hook';
-import { setUser } from '../../redux/feature/auth/authSlice';
+import { useLoginUserMutation } from "../../redux/feature/auth/authApi";
+import { useAppDispatch } from "./../../redux/hook";
+import { setUser } from "../../redux/feature/auth/authSlice";
+import GoogleButton from "../../components/auth/GoogleButton";
+import FacebookButton from "../../components/auth/FacebookButton";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +26,8 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [login] = useLoginUserMutation();
-
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  console.log(showSuccessModal);
   const {
     register,
     handleSubmit,
@@ -42,7 +54,7 @@ const Login = () => {
         //   student: "/student/dashboard",
         //   admin: "/admin/dashboard",
         // };
-        
+
         navigate("/");
       }
     } catch (err) {
@@ -57,10 +69,11 @@ const Login = () => {
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome Back
+          </h1>
           <p className="text-gray-600">Sign in to access your account</p>
         </div>
-
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
           <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
@@ -74,8 +87,16 @@ const Login = () => {
             {error && (
               <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-100 flex items-start">
                 <div className="shrink-0 h-5 w-5 text-red-500 mt-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
@@ -85,9 +106,11 @@ const Login = () => {
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-    
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Address
                 </label>
                 <div className="relative rounded-md shadow-sm">
@@ -111,8 +134,16 @@ const Login = () => {
                 </div>
                 {errors.email && (
                   <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                    <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {errors.email.message}
                   </p>
@@ -122,7 +153,10 @@ const Login = () => {
               {/* Password Field */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
                   <Link
@@ -160,8 +194,16 @@ const Login = () => {
                 </div>
                 {errors.password && (
                   <p className="mt-1.5 text-sm text-red-600 flex items-center">
-                    <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {errors.password.message}
                   </p>
@@ -187,24 +229,12 @@ const Login = () => {
               </div>
             </form>
 
-            {/* <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center mb-4">Access your dashboard by role:</p>
-              <div className="flex justify-center space-x-6">
-                <div className="flex flex-col items-center">
-                  <div className="bg-blue-100 p-2 rounded-lg mb-1">
-                    <User className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <span className="text-xs text-gray-600">Student</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="bg-indigo-100 p-2 rounded-lg mb-1">
-                    <Shield className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <span className="text-xs text-gray-600">Admin</span>
-                </div>
-      
-              </div>
-            </div> */}
+            <div className="mt-6 flex justify-center">
+              <GoogleButton setShowSuccessModal={setShowSuccessModal} />
+            </div>
+            <div className="mt-6 flex justify-center">
+              <FacebookButton setShowSuccessModal={setShowSuccessModal} />
+            </div>
           </div>
 
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 text-center">

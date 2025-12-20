@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { tagTypesList } from "../tag-type.js";
 
 const axiosInstance = axios.create({
-  baseURL: "https://college-backend-jobtask-zxlc.vercel.app/api/v1",
+  baseURL: "http://localhost:5000/api/v1",
+  // baseURL: "https://college-backend-jobtask-zxlc.vercel.app/api/v1",
   withCredentials: true,
 });
 
