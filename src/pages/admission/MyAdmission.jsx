@@ -17,16 +17,29 @@ import {
   Globe
 } from "lucide-react";
 import { useGetMyAdmissionQuery } from "../../redux/feature/admission/admissionApi";
+import { Link } from "react-router-dom";
 
 const MyAdmission = () => {
   const { 
-    data: admissions, 
+    data: admissionsResponse, 
     isLoading: admissionLoading, 
     isError: admissionError 
   } = useGetMyAdmissionQuery();
   
-  const admission = admissions?.data;
-  const college = admissions?.data[0]?.collegeId;
+  // Extract the admissions array and get the first admission
+  const admissions = admissionsResponse?.data || [];
+  const admission = admissions.length > 0 ? admissions[0] : null;
+  const college = admission?.collegeId;
+
+  // Function to format dates properly
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
 
   if (admissionLoading) {
     return (
@@ -143,7 +156,7 @@ const MyAdmission = () => {
             <div className="text-center md:text-right">
               <p className="text-sm text-gray-600">Applied on</p>
               <p className="font-medium text-gray-900">
-                {(new Date(admission.applicationDate), "MMMM d, yyyy")}
+                {formatDate(admission.applicationDate)}
               </p>
             </div>
           </div>
@@ -172,7 +185,7 @@ const MyAdmission = () => {
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Date of Birth</p>
                       <p className="font-medium text-gray-900">
-                        {(new Date(admission.dateOfBirth), "MMMM d, yyyy")}
+                        {formatDate(admission.dateOfBirth)}
                       </p>
                     </div>
                     <div>
@@ -202,7 +215,7 @@ const MyAdmission = () => {
                       <p className="text-sm text-gray-500 mb-1">Application Date</p>
                       <p className="font-medium text-gray-900 flex items-center">
                         <Calendar className="h-4 w-4 mr-2 text-blue-500" />
-                        {(new Date(admission.applicationDate), "MMMM d, yyyy")}
+                        {formatDate(admission.applicationDate)}
                       </p>
                     </div>
                   </div>
@@ -233,7 +246,7 @@ const MyAdmission = () => {
                       <FileText className="h-8 w-8 text-blue-500 mr-3" />
                       <div>
                         <p className="font-medium text-gray-900">Admission Application</p>
-                        <p className="text-sm text-gray-600">Submitted on {(new Date(admission.applicationDate), "MMMM d, yyyy")}</p>
+                        <p className="text-sm text-gray-600">Submitted on {formatDate(admission.applicationDate)}</p>
                       </div>
                     </div>
                   </div>
@@ -329,8 +342,8 @@ const MyAdmission = () => {
                         <div>
                           <p className="text-sm text-gray-500">Admission Period</p>
                           <p className="font-medium text-gray-900">
-                            {(new Date(college.admissionDates.startDate), "MMM d")} - {" "}
-                            {(new Date(college.admissionDates.endDate), "MMM d, yyyy")}
+                            {formatDate(college.admissionDates.startDate)} - {" "}
+                            {formatDate(college.admissionDates.endDate)}
                           </p>
                           <p className="text-sm text-gray-600">{college.admissionDates.session}</p>
                         </div>
@@ -338,12 +351,12 @@ const MyAdmission = () => {
                     </div>
 
                     <div className="pt-4">
-                      <a 
-                        href={`/college/${college._id}`}
+                      <Link 
+                        to={`/colleges/${college._id}`}
                         className="block w-full text-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition shadow-md"
                       >
                         View College Details
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 ) : (

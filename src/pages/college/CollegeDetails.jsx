@@ -5,7 +5,10 @@ import { useGetCollegeByIdQuery } from "../../redux/feature/college/collegeApi";
 
 const CollegeDetails = () => {
   const { id } = useParams();
-  const { data: college, isLoading, isError, error } = useGetCollegeByIdQuery(id);
+    const { data: response, isLoading, isError, error } = useGetCollegeByIdQuery(id);
+  
+  // Extract college data from the nested response structure
+  const college = response?.data;
 
   if (isLoading)
     return (
